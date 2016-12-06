@@ -6,7 +6,7 @@
         _isForm      = false,
         _data        = new FormData(),
         _action      = fAction || function( aData){},
-        _scope       = this,
+        _obj         = {},
         _dynFunction = {};
 
     if( oData instanceof NodeList){
@@ -58,7 +58,7 @@
        if( oElement.checked){
          _insert( sKey, oElement.value);
        }else if( _data.has( sKey)){
-         _data.delete( sKey);
+         _delete( sKey);
        }
        action.call( null, _data);
      };
@@ -77,7 +77,7 @@
        if( oElement.files[0]){
          _insert( sKey, oElement.files[0], oElement.value);
        }else if( _data.has( sKey)){
-         _data.delete( sKey);
+         _delete( sKey);
        }else{
          _insert( sKey, oElement.value);
        }
@@ -127,6 +127,23 @@
 
       var fInsert = _data.has( sKey)? 'set' : 'append';
       _data[ fInsert ].apply( _data, arguments);
+      _obj[ sKey ] = sValue;
+
+    }
+
+
+    /**
+     * [_insert description]
+     * @param  {[type]} sKey   [description]
+     * @param  {[type]} sValue [description]
+     * @return {[type]}        [description]
+     */
+    function _delete( sKey){
+
+      if( _data.has( sKey)){
+        _data.delete( sKey);
+        delete _obj[ sKey ];
+      }
 
     }
 
@@ -159,7 +176,8 @@
       _isForm || _init();
 
       return {
-        data : _data
+        formData  : _data,
+        object    : _obj
       }
     };
 

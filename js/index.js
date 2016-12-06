@@ -10,9 +10,11 @@ var oForm = document.getElementById('form'),
       var string;
       e.preventDefault();
 
-      for(var data of oData.data.entries()){
+      for(var data of oData.formData.entries()){
          console.log(data[0]+' => '+data[1]);
       }
+
+      console.log( oData.object);
 
       return false;
   };
