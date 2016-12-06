@@ -41,7 +41,7 @@
     _dynFunction._buildInputGetValue = function( oElement, sKey, action) {
      return function( e){
        _insert( sKey, oElement.value);
-       action.call( null, _getData());
+       action.call( null, _data);
      };
     }
 
@@ -57,10 +57,10 @@
 
        if( oElement.checked){
          _insert( sKey, oElement.value);
-       }else if( _getData().has( sKey)){
-         _getData().delete( sKey);
+       }else if( _data.has( sKey)){
+         _data.delete( sKey);
        }
-       action.call( null, _getData());
+       action.call( null, _data);
      };
     }
 
@@ -76,13 +76,13 @@
 
        if( oElement.files[0]){
          _insert( sKey, oElement.files[0], oElement.value);
-       }else if( _getData().has( sKey)){
-         _getData().delete( sKey);
+       }else if( _data.has( sKey)){
+         _data.delete( sKey);
        }else{
          _insert( sKey, oElement.value);
        }
 
-       action.call( null, _getData());
+       action.call( null, _data);
      };
     }
 
@@ -124,18 +124,10 @@
      * @return {[type]}        [description]
      */
     function _insert( sKey, sValue, filename){
-      var fInsert = _data.has( sKey)? 'set' : 'append';
 
+      var fInsert = _data.has( sKey)? 'set' : 'append';
       _data[ fInsert ].apply( _data, arguments);
 
-    }
-
-    /**
-     * [_getData description]
-     * @return {[type]} [description]
-     */
-    function _getData(){
-      return _data;
     }
 
     /**
@@ -164,10 +156,10 @@
     }
 
 
-    _isForm || _init();
+      _isForm || _init();
 
-    return {
-      data : _data
+      return {
+        data : _data
       }
     };
 
