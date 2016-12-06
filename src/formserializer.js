@@ -1,36 +1,141 @@
 ( function( scope){
 
-  FormSerializer = function( oForm, fAction ){
+  FormSerializer = function( oData, fAction ){
 
-    element = null;
-    data    = {};
-    action  = fAction || function( aData){};
+    var _element     = null,
+        _isForm      = false,
+        _data        = new FormData(),
+        _action      = fAction || function( aData){},
+        _scope       = this,
+        _dynFunction = {};
 
-    if( oForm instanceof NodeList){
-      element = [].slice.call( oForm);
-    }else if( oForm instanceof Element){
-      element = [oForm];
+    if( oData instanceof NodeList){
+
+      _element = [].slice.call( oData);
+
+    }else if( oData instanceof Element){
+
+      if( oData.tagName.toLowerCase() !== 'form'){
+        _element = [oData];
+      }else{
+        _isForm = true;
+        _data   = new FormData( oData);
+      }
+
     }
 
-   _init();
+/***************************************************
+  ______   ___   _
+ |  _ \ \ / / \ | |
+ | | | \ V /|  \| |
+ | |_| || | | |\  |
+ |____/ |_| |_| \_|
+***************************************************/
+    /**
+     * [_buildInputGetValue description]
+     * @param  {[type]} oElement [description]
+     * @param  {[type]} sKey     [description]
+     * @param  {[type]} action   [description]
+     * @return {[type]}          [description]
+     */
+    _dynFunction._buildInputGetValue = function( oElement, sKey, action) {
+     return function( e){
+       _insert( sKey, oElement.value);
+       action.call( null, _getData());
+     };
+    }
 
+    /**
+    * [_buildCheckboxGetValue description]
+    * @param  {[type]} oElement [description]
+    * @param  {[type]} sKey     [description]
+    * @param  {[type]} action   [description]
+    * @return {[type]}          [description]
+    */
+    _dynFunction._buildCheckboxGetValue = function( oElement, sKey, action) {
+       return function( e){
+
+       if( oElement.checked){
+         _insert( sKey, oElement.value);
+       }else if( _getData().has( sKey)){
+         _getData().delete( sKey);
+       }
+       action.call( null, _getData());
+     };
+    }
+
+    /**
+    * [_buildFileGetValue description]
+    * @param  {[type]} oElement [description]
+    * @param  {[type]} sKey     [description]
+    * @param  {[type]} action   [description]
+    * @return {[type]}          [description]
+    */
+    _dynFunction._buildFileGetValue = function( oElement, sKey, action) {
+       return function( e){
+
+       if( oElement.files[0]){
+         _insert( sKey, oElement.files[0], oElement.value);
+       }else if( _getData().has( sKey)){
+         _getData().delete( sKey);
+       }else{
+         _insert( sKey, oElement.value);
+       }
+
+       action.call( null, _getData());
+     };
+    }
+
+/****************************************************
+  _____ _   _ _   _  ____ _____ ___ ___  _   _
+ |  ___| | | | \ | |/ ___|_   _|_ _/ _ \| \ | |
+ | |_  | | | |  \| | |     | |  | | | | |  \| |
+ |  _| | |_| | |\  | |___  | |  | | |_| | |\  |
+ |_|    \___/|_| \_|\____| |_| |___\___/|_| \_|
+
+*****************************************************/
+
+    /**
+     * [_init description]
+     * @return {[type]} [description]
+     */
     function _init(){
-
       var i        = 0,
-          iLen     = element.length,
+          iLen     = _element.length,
           oElement = null,
           oData    = {},
           sKey     = '';
 
       for(; i < iLen ; i++ ){
 
-        oElement      = element[ i ];
-        sKey          = oElement.hasAttribute( "name") ? oElement.getAttribute( "name") : '';
+        oElement = _element[ i ];
+        sKey     = oElement.getAttribute( "name") || '';
 
         if( sKey !== ''){
           _computeListener( sKey, oElement);
         }
       }
+    }
+
+    /**
+     * [_insert description]
+     * @param  {[type]} sKey   [description]
+     * @param  {[type]} sValue [description]
+     * @return {[type]}        [description]
+     */
+    function _insert( sKey, sValue, filename){
+      var fInsert = _data.has( sKey)? 'set' : 'append';
+
+      _data[ fInsert ].apply( _data, arguments);
+
+    }
+
+    /**
+     * [_getData description]
+     * @return {[type]} [description]
+     */
+    function _getData(){
+      return _data;
     }
 
     /**
@@ -41,37 +146,28 @@
       var sName   = oElement.tagName.toLowerCase(),
           sType   = (oElement.getAttribute('type') || '').toLowerCase(),
           sAction = sName !== 'select' ? 'input' : 'change',
-          fAction = (function( oElement, data, action) {
-            return function( e){
-              data[ sKey ] = oElement.value;
-              action.call( null, data);
-            };
-          })(oElement, data, action);
+          sMethode = '_buildInputGetValue',
+          fAction;
 
-      sAction = ( !~[ 'radio', 'checkbox'].indexOf( sType))?  sAction : 'change';
+      sAction = ( !~[ 'radio', 'checkbox', 'file'].indexOf( sType))? sAction : 'change';
 
       if( sType == 'checkbox'){
-
-        fAction = (function( oElement, data, action) {
-                    return function( e){
-                    if( oElement.checked){
-                      data[ sKey ] = oElement.value;
-                    }else if( data.hasOwnProperty( sKey)){
-                      delete data[ sKey ];
-                    }
-                    action.call( null, data);
-                  };
-                })(oElement, data, action);
-
-
+        sMethode = '_buildCheckboxGetValue'
+      }else if( sType == 'file'){
+        sMethode = '_buildFileGetValue';
       }
+
+      fAction = _dynFunction[ sMethode ]( oElement, sKey, _action);
+
       oElement.addEventListener( sAction, fAction);
       fAction();
     }
 
 
+    _isForm || _init();
+
     return {
-      data : data
+      data : _data
       }
     };
 

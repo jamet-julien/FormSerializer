@@ -8,32 +8,33 @@
   </head>
   <body>
 
-    <form id="form">
-      <div><input type="text" name="a" value="1" id="a"></div>
-      <div><input type="text" name="b" value="2" id="b"></div>
-      <div><input type="hidden" name="c" value="3" id="c"></div>
+    <form id="form" enctype="multipart/form-data">
+      <div><input type="text" name="a" value="1" id="a"/></div>
+      <div><input type="text" name="b" value="2" id="b"/></div>
+      <div><input type="hidden" name="c" value="3" id="c"/></div>
+      <div><input type="file" name="d" id="d"/></div>
       <div>
-        <textarea name="d" rows="8" cols="40">4</textarea>
+        <textarea name="e" rows="8" cols="40">4</textarea>
       </div>
-      <div><select name="e" id="select">
+      <div><select name="f" id="select">
         <option value="5" selected="selected">5</option>
         <option value="6">6</option>
         <option value="7">7</option>
       </select></div>
       <div>
-        <input type="checkbox" name="f" value="8" id="f">
+        <input type="checkbox" name="g" value="8" id="f"/>
       </div>
       <div>
-        <input type="radio" name="g" value="11" id="h">
-        <input type="radio" name="g" value="10" id="g">
+        <input type="radio" name="h" value="11" id="h"/>
+        <input type="radio" name="h" value="10" id="g"/>
       </div>
       <div>
-        <input type="submit" name="h" value="Submit" id="i">
+        <input type="submit" value="Submit" id="i"/>
       </div>
     </form>
 
 
-    <script type="text/javascript" src="src/formserializer.min.js"></script>
+    <script type="text/javascript" src="src/formserializer.js"></script>
     <script type="text/javascript" src="js/index.js"></script>
   </body>
 </html>

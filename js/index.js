@@ -7,9 +7,12 @@ var oForm = document.getElementById('form'),
                 );
 
   oForm.onsubmit = function(e){
+      var string;
       e.preventDefault();
 
-      console.log( oData.data);
+      for(var data of oData.data.entries()){
+         console.log(data[0]+' => '+data[1]);
+      }
 
       return false;
   };
