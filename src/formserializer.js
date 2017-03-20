@@ -17,7 +17,9 @@
 
       if( oData.tagName.toLowerCase() !== 'form'){
         _element = [oData];
+        
       }else{
+        
         _isForm = true;
         _data   = new FormData( oData);
       }
@@ -41,6 +43,24 @@
     _dynFunction._buildInputGetValue = function( oElement, sKey, action) {
      return function( e){
        _insert( sKey, oElement.value);
+       action.call( null, _data);
+     };
+    }
+
+    /**
+    * [_buildCheckboxGetValue description]
+    * @param  {[type]} oElement [description]
+    * @param  {[type]} sKey     [description]
+    * @param  {[type]} action   [description]
+    * @return {[type]}          [description]
+    */
+    _dynFunction._buildRadioGetValue = function( oElement, sKey, action) {
+       return function( e){
+
+       if( oElement.checked){
+         _insert( sKey, oElement.value);
+       }
+
        action.call( null, _data);
      };
     }
@@ -128,7 +148,6 @@
       var fInsert = _data.has( sKey)? 'set' : 'append';
       _data[ fInsert ].apply( _data, arguments);
       _obj[ sKey ] = sValue;
-
     }
 
 
@@ -160,8 +179,10 @@
 
       sAction = ( !~[ 'radio', 'checkbox', 'file'].indexOf( sType))? sAction : 'change';
 
-      if( sType == 'checkbox'){
-        sMethode = '_buildCheckboxGetValue'
+      if( sType == 'checkbox' ){
+        sMethode = '_buildCheckboxGetValue';
+      }else if( sType == 'radio'){
+        sMethode = '_buildRadioGetValue';
       }else if( sType == 'file'){
         sMethode = '_buildFileGetValue';
       }
